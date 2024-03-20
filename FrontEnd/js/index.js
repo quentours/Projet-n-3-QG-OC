@@ -22,7 +22,7 @@ function genererCollection(works) {
         const gallery = document.querySelector(".gallery");
         // Création d'une balise dédiée à un projet
         const projetElement = document.createElement("div");
-
+        projetElement.classList.add("element")
         // Création des balises
 
         const imageElement = document.createElement("img");
@@ -30,6 +30,10 @@ function genererCollection(works) {
 
         const nomElement = document.createElement("p");
         nomElement.innerText = fiche.title;
+
+        // Ajout de l'ID category comme data attribute
+
+        projetElement.dataset.categoryId = fiche.category.id;
 
         // On rattache nos balises au DOM
 
@@ -51,34 +55,53 @@ boutonTous.addEventListener("click" ,function() {
     document.querySelector (".gallery").innerHTML="";
     genererCollection(works);
     });
-    
 
-const boutonObjet = document.querySelector(".btn-objet");
+// Récupération des catégories : Id + name
 
-boutonObjet.addEventListener("click" ,function() {
-    const ProjetFiltres = works.filter(function (work) {
-        return work.category.id === 1;
+async function fetchCategories() {
+    try {
+        const reponse = await fetch("http://localhost:5678/api/categories")
+        const categories = await reponse.json();
+        createFilterButtons(categories);
+} catch (error) {
+    console.error("Erreur dans la récupération des données", error);
+    }
+
+}
+
+// Création des boutons en fonction des données de l'API
+
+function createFilterButtons(categories) {
+    const boutonsTri = document.querySelector(".bouton-de-tri");
+    categories.forEach(category => {
+        const button = document.createElement("button");
+        button.textContent = category.name;
+        button.dataset.categoryId = category.id;
+        button.addEventListener("click", handleFilterClick);
+        boutonsTri.appendChild(button);
     });
-    document.querySelector (".gallery").innerHTML="";
-    genererCollection(ProjetFiltres);
-})
+}
 
-const boutonAppartement = document.querySelector(".btn-appartement");
+// définition de l'évennement au clic sur un des boutons
 
-boutonAppartement.addEventListener("click" ,function() {
-    const ProjetFiltres = works.filter(function (work) {
-        return work.category.id === 2;
+function handleFilterClick(event) {
+    const categoryId = event.target.dataset.categoryId;
+    filterElements(categoryId);
+}
+
+// Affichage des éléments en fonction de leur catégorie
+
+function filterElements(categoryId) {
+    const elements = document.querySelectorAll(".gallery .element")
+       elements.forEach(element => {
+        const elementCategoryId = element.dataset.categoryId;
+        console.log("Element Category ID:" , elementCategoryId);
+        if (categoryId === "all" || categoryId === elementCategoryId) {
+            element.style.display = "block";
+        } else {
+            element.style.display ="none";
+        }
     });
-    document.querySelector (".gallery").innerHTML="";
-    genererCollection(ProjetFiltres);
-})
+}
 
-const boutonHotel = document.querySelector(".btn-hotel");
-
-boutonHotel.addEventListener("click" ,function() {
-    const ProjetFiltres = works.filter(function (work) {
-        return work.category.id === 3;
-    });
-    document.querySelector (".gallery").innerHTML="";
-    genererCollection(ProjetFiltres);
-})
+fetchCategories();
