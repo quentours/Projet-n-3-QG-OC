@@ -105,3 +105,27 @@ function filterElements(categoryId) {
 }
 
 fetchCategories();
+
+// Switch entre login et logout si l'utilisateur est connecté
+
+document.addEventListener("DOMContentLoaded", function() {
+    const loginLink = document.getElementById("login-link");
+    const logoutLink = document.getElementById("logout-link");
+
+    const token = localStorage.getItem("token");
+    if (token) {
+        loginLink.style.display = "none";
+        logoutLink.style.display = "block";
+    } else {
+        loginLink.style.display = "block";
+        logoutLink.style.display = "none";
+    }
+
+    // Supression du token dans le localStorage au clic sur logout
+    const logoutButton = document.getElementById("logout-link");
+    logoutButton.addEventListener("click", function() {
+        localStorage.removeItem("token");
+        window.location.href = "file:///C:/xampp/htdocs/Code%20entrainement/Formation%20Dev%20Web%20OpenClassrooms/Partie%203/Projet%203/Projet-n-3-QG-OC/FrontEnd/index.html"
+    }) 
+})
+
