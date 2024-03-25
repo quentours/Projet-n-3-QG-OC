@@ -9,6 +9,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
 	<meta name="description" content="">
 	<link rel="stylesheet" href="./assets/style.css">
+	<script src="https://kit.fontawesome.com/5e162f1db4.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <header>
@@ -36,7 +37,30 @@
 		</article>
 	</section>
 	<section id="portfolio">
+		<div class="portfolio-header">
 		<h2>Mes Projets</h2>
+		<a href="#myModal" id="btn-modifier" style="display: none;"><i class="fa-regular fa-pen-to-square"></i> modifier</a>
+
+		<asside id="myModal" class="modal" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="menu-ajout" style="display: none;">
+			<div id="menu-ajout" class="modal-section" style="display: block;">
+				<div id="close-button"><a href="#" ><i class="fa-solid fa-xmark"></i></a></div>
+				<p>Galerie photo</p>
+				<div class="galerie-modal"></div>
+				<button>Ajouter une photo</button>
+			</div>
+			<div id="ajout-photo" class="modal-section" style="display: none;">
+				<form action="/upload" method="post" enctype="multipart/form-data">
+					<label for="file">+ Ajouter une photo</label>
+					<input type="file" id="file" name="file" accept=".jpeg .jpg .png">
+					<label for="title">Titre</label>
+					<input type="text" name="title" id="title">
+					<label for="choix-cat">Catégorie</label>
+					<select id="choix-cat" name="choix-cat"></select>
+					<input type="submit" value="Valider">
+				</form>
+			</div>
+		</asside>
+		</div>
 		<div class="bouton-de-tri">
 			<button class="btn-tous">Tous</button>
 		
@@ -69,6 +93,7 @@
 	</nav>
 </footer>
 <script src="./js/index.js"></script>
+<script src="./js/modal.js"></script>
 <!-- <script src="index.js"></script> -->
 </body>
 </html>

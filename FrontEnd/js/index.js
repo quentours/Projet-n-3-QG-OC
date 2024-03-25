@@ -129,3 +129,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }) 
 })
 
+// affichage du boutton modifier si l'utilisateur est connecté 
+
+document.addEventListener("DOMContentLoaded", function() {
+    const btnModifier = document.getElementById("btn-modifier");
+
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        btnModifier.style.display = "block";
+    } else {
+        btnModifier.style.display = "none";
+    }
+})
