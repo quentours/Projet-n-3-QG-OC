@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             localStorage.setItem("token", token)
 
-            window.location.href = "file:///C:/xampp/htdocs/Code%20entrainement/Formation%20Dev%20Web%20OpenClassrooms/Partie%203/Projet%203/Projet-n-3-QG-OC/FrontEnd/index.html";
+            window.location.href = "./index.html";
         } catch (error) {
             console.error("Error:", error.message);
 

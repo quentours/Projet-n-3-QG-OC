@@ -1,5 +1,3 @@
-let works;
-
 // Récupération des travaux depuis l'API
 async function getCollection() {
 const reponse = await fetch("http://localhost:5678/api/works");
@@ -7,6 +5,8 @@ works = await reponse.json();
 
 genererCollection(works);
 }
+
+
 
 function genererCollection(works) {
     if (!works || works.length ===0) {
@@ -44,6 +44,8 @@ function genererCollection(works) {
     }
 
 }
+
+
 
 getCollection()
 

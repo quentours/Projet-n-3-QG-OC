@@ -12,6 +12,7 @@
 	<script src="https://kit.fontawesome.com/5e162f1db4.js" crossorigin="anonymous"></script>
 </head>
 <body>
+	<div id="overlay"></div>
 <header>
 	<h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
 	<nav>
@@ -42,21 +43,30 @@
 		<a href="#myModal" id="btn-modifier" style="display: none;"><i class="fa-regular fa-pen-to-square"></i> modifier</a>
 
 		<asside id="myModal" class="modal" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="menu-ajout" style="display: none;">
-			<div id="menu-ajout" class="modal-section" style="display: block;">
-				<div id="close-button"><a href="#" ><i class="fa-solid fa-xmark"></i></a></div>
+			<div id="menu-ajout" class="modal-section" style="display: flex;">
+				<div id="close-button" class="close-button"><a href="#myModal" ><i class="fa-solid fa-xmark"></i></a></div>
 				<p>Galerie photo</p>
 				<div class="galerie-modal"></div>
-				<button>Ajouter une photo</button>
+				<button id="btn-ajout">Ajouter une photo</button>
 			</div>
 			<div id="ajout-photo" class="modal-section" style="display: none;">
+				<div id="close-button2" class="close-button"><a href="#myModal" ><i class="fa-solid fa-xmark"></i></a></div>
 				<form action="/upload" method="post" enctype="multipart/form-data">
-					<label for="file">+ Ajouter une photo</label>
-					<input type="file" id="file" name="file" accept=".jpeg .jpg .png">
-					<label for="title">Titre</label>
+					<div id="ajout-frame">
+						<i class="fa-regular fa-image" id="logo-ajout"></i>
+
+					<input type="file" id="file" name="file" accept=".jpeg, .jpg, .png">
+					<div id="render-picture"></div>
+					<p id="p-frame1">+ Ajouter photo</p>
+					<p id="p-frame2">jpg, png : 4mo max</p>
+				</div>
+					<label for="title" id="label-title">Titre</label>
 					<input type="text" name="title" id="title">
 					<label for="choix-cat">Catégorie</label>
-					<select id="choix-cat" name="choix-cat"></select>
-					<input type="submit" value="Valider">
+					<div id="line1"><select id="choix-cat" name="choix-cat">
+						<option value=""></option>
+					</select></div>
+					<input type="submit" value="Valider" id="valider">
 				</form>
 			</div>
 		</asside>
@@ -84,7 +94,6 @@
 		</form>
 	</section>
 </main>
-
 <footer>
 	<nav>
 		<ul>
@@ -92,6 +101,7 @@
 		</ul>
 	</nav>
 </footer>
+
 <script src="./js/index.js"></script>
 <script src="./js/modal.js"></script>
 <!-- <script src="index.js"></script> -->
