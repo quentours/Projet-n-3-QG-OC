@@ -1,10 +1,11 @@
 // Récupération des travaux depuis l'API
 async function getCollection() {
-const reponse = await fetch("http://localhost:5678/api/works");
-works = await reponse.json();
+    const reponse = await fetch("http://localhost:5678/api/works");
+    works = await reponse.json();
 
 genererCollection(works);
 }
+
 
 
 
@@ -14,10 +15,12 @@ function genererCollection(works) {
         return
     }
 
-
+    console.log("Number of works:", works.length);
 
     for (let i=0; i < works.length; i++) {
+        console.log("Loop iteration:", i)
         const fiche = works[i];
+        if (fiche.category && fiche.category.id) {
         // Récupérationd de l'élément DOM qui accueillera les différents projet
         const gallery = document.querySelector(".gallery");
         // Création d'une balise dédiée à un projet
@@ -41,6 +44,9 @@ function genererCollection(works) {
         projetElement.appendChild(imageElement);
         projetElement.appendChild(nomElement);
 
+    } else {
+        console.error("Missing category or id in fiche:", fiche);
+        }
     }
 
 }
