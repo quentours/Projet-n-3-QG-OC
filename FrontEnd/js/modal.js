@@ -32,14 +32,33 @@ const openModal = async function (e) {
             console.error("La collection est vide ou non définit");
             return
         }
+        const galleryModal = document.querySelector(".galerie-modal");
 
         for (let i=0 ; i< works.length; i++) {
             const vignette = works[i];
-            const galleryModal = document.querySelector(".galerie-modal");
-            const imageVignette = document.createElement("img")
+            const imageContainer = document.createElement("div");
+            const imageVignette = document.createElement("img");
+
+            // peut être besoin de supprimer la partie trash-can et garder juste {vignette.id}
+            // pour l'appel à l'API delete
+            const trashCanId = `trash-can-${vignette.id}`;
+
+            const trashCanAncor = document.createElement("a");
+            trashCanAncor.href ="#";
+            trashCanAncor.id = trashCanId;
+            
+            const trashCanIcon = document.createElement("i");
+            trashCanIcon.classList.add("fas", "fa-trash-can");
+
+            trashCanAncor.appendChild(trashCanIcon);            
+
+
             imageVignette.src = vignette.imageUrl;
 
-            galleryModal.appendChild(imageVignette);
+            imageContainer.appendChild(imageVignette);
+            imageContainer.appendChild(trashCanAncor);
+
+            galleryModal.appendChild(imageContainer);
         }
     }
 }
@@ -78,7 +97,8 @@ async function getCollection() {
     genererCollection(works);
     }
 
-function genererCollection(worksData) {
+async function genererCollection(worksDataData) {
+    works = worksData;
     works = worksData;
         if (!works || works.length ===0) {
             console.error("La collection est vide ou non définit");
@@ -87,9 +107,19 @@ function genererCollection(worksData) {
     
         const gallery = document.querySelector(".gallery");
         gallery.innerHTML="";
+
+    const gallery = document.querySelector(".gallery");
+        gallery.innerHTML="";
     
         for (let i=0; i < works.length; i++) {
             const fiche = works[i];
+            if (!fiche.categoryId) {
+                console.error("Category is undefined for:", fiche);
+                continue;
+            } 
+            const categoryId = parseInt(fiche.categoryId);
+            const category = {id: categoryId, name: fiche.category};
+            fiche.category= category;   
             // Récupérationd de l'élément DOM qui accueillera les différents projet
             const gallery = document.querySelector(".gallery");
             // Création d'une balise dédiée à un projet
@@ -105,7 +135,7 @@ function genererCollection(worksData) {
     
             // Ajout de l'ID category comme data attribute
     
-            projetElement.dataset.categoryId = fiche.category.id;
+            projetElement.dataset.categoryId = categoryId;
     
             // On rattache nos balises au DOM
     
@@ -141,6 +171,87 @@ function handleFileUpload(event) {
 }
 
 async function addWork(event) {
+    event.preventDefault();
+    const titleInput = document.getElementById("title");
+    const categoryInput = document.getElementById("choix-cat");
+    const ajoutFrame = document.getElementById("ajout-frame");
+    const fileInput = document.getElementById("file");
+    const title = titleInput.value;
+    const imageUrl = ajoutFrame.querySelector("img").src;
+    const userID = 1;
+
+    const categories = await getCategories();
+
+    const selectedCategory = categories.find(category => category.name === categoryInput.value);
+    // C'est Ici qu'il faut coriger le tir !!!
+    
+    if(selectedCategory) {
+        const categoryId = parseInt(selectedCategory.id);
+        const categoryName = selectedCategory.name
+        const id = works.length > 0 ? works.length +1 : 1;
+        const work = {
+            "id" : id,
+            "title" : title,
+            "imageUrl" : imageUrl,
+            "categoryId" : categoryId,
+            "category" :{
+                "id": categoryId,
+                "name": categoryName
+            },
+            "userID" : userID 
+        };
+
+
+        await addToCollection(fileInput, title, categoryId);
+        addToCollectionModal(work);
+    } else {
+        console.error("Selected category not found:", categoryInput.value);
+    }
+   
+}
+
+async function addToCollection(fileInput, title, categoryId) {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("image", fileInput.files[0]);
+    formData.append("title", title);
+    formData.append("category", parseInt(categoryId));
+    try {
+        const reponse = await fetch("http://localhost:5678/api/works", {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+
+                'Authorization' : `Bearer ${token}`,
+            },
+            body: formData
+            
+        });
+        if (!reponse.ok) {
+            throw new Error('Echec de l\'ajout du nouveau projet');
+        }
+        const newWork = await reponse.json();
+        await addToCollectionData(newWork);
+        genererCollection(works);
+        // console.log(categoryId);
+        addToCollectionModal(newWork);
+    } catch (error) {
+        console.error("Erreur dans l'ajout du projet", error.message);
+    }
+}
+
+async function addToCollectionData(newWork) {
+    works.push(newWork);
+}
+
+function addToCollectionModal(work) {
+    const galleryModal = document.querySelector(".galerie-modal")
+    const img = new Image();
+    img.src = work.imageUrl;
+    galleryModal.appendChild(img);
+    }
+
+console.log(localStorage.getItem("token"))async function addWork(event) {
     event.preventDefault();
     const titleInput = document.getElementById("title");
     const categoryInput = document.getElementById("choix-cat");
@@ -253,12 +364,9 @@ const btnAjout = document.getElementById("btn-ajout");
 btnAjout.addEventListener("click", slideModal);
 
 // Affichage de l'aperçu du fichier a upload dans la modale 
+// Affichage de l'aperçu du fichier a upload dans la modale 
 const fileInput = document.getElementById("file");
 fileInput.addEventListener("change", handleFileUpload);
 
-const fileAdd = document.getElementById("valider");
-fileAdd.addEventListener("click", function(event) {
-    addWork(event);
-    closeModal();
-})
+
 
