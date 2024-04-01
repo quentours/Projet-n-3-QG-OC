@@ -20,7 +20,10 @@ function genererCollection(works) {
     for (let i=0; i < works.length; i++) {
         console.log("Loop iteration:", i)
         const fiche = works[i];
-        if (fiche.category && fiche.category.id) {
+        const categoryId = parseInt(fiche.category.id);
+            const category = {id: categoryId, name: fiche.category};
+            fiche.category= category;   
+        if (fiche.category && categoryId ) {
         // Récupérationd de l'élément DOM qui accueillera les différents projet
         const gallery = document.querySelector(".gallery");
         // Création d'une balise dédiée à un projet
@@ -36,13 +39,16 @@ function genererCollection(works) {
 
         // Ajout de l'ID category comme data attribute
 
-        projetElement.dataset.categoryId = fiche.category.id;
+        projetElement.dataset.categoryId = categoryId;
 
         // On rattache nos balises au DOM
+
+        console.log("Fiche Object:", fiche)
 
         gallery.appendChild(projetElement);
         projetElement.appendChild(imageElement);
         projetElement.appendChild(nomElement);
+        
 
     } else {
         console.error("Missing category or id in fiche:", fiche);
@@ -50,7 +56,6 @@ function genererCollection(works) {
     }
 
 }
-
 
 
 getCollection()
@@ -93,7 +98,7 @@ function createFilterButtons(categories) {
 // définition de l'évennement au clic sur un des boutons
 
 function handleFilterClick(event) {
-    const categoryId = event.target.dataset.categoryId;
+    const categoryId = parseInt(event.target.dataset.categoryId);
     filterElements(categoryId);
 }
 
@@ -102,7 +107,7 @@ function handleFilterClick(event) {
 function filterElements(categoryId) {
     const elements = document.querySelectorAll(".gallery .element")
        elements.forEach(element => {
-        const elementCategoryId = element.dataset.categoryId;
+        const elementCategoryId = parseInt(element.dataset.categoryId);
         console.log("Element Category ID:" , elementCategoryId);
         if (categoryId === "all" || categoryId === elementCategoryId) {
             element.style.display = "block";
@@ -110,6 +115,7 @@ function filterElements(categoryId) {
             element.style.display ="none";
         }
     });
+    console.log(categoryId)
 }
 
 fetchCategories();
