@@ -15,10 +15,8 @@ function genererCollection(works) {
         return
     }
 
-    console.log("Number of works:", works.length);
 
     for (let i=0; i < works.length; i++) {
-        console.log("Loop iteration:", i)
         const fiche = works[i];
         const categoryId = parseInt(fiche.category.id);
             const category = {id: categoryId, name: fiche.category};
@@ -43,7 +41,6 @@ function genererCollection(works) {
 
         // On rattache nos balises au DOM
 
-        console.log("Fiche Object:", fiche)
 
         gallery.appendChild(projetElement);
         projetElement.appendChild(imageElement);
