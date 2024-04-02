@@ -26,13 +26,14 @@ const openModal = async function (e) {
         const reponse = await fetch("http://localhost:5678/api/works");
         works = await reponse.json();
         genererCollectionModal(works);
-    }
+        }
+    
     function genererCollectionModal(works) {
         if (!works || works.length === 0) {
             console.error("La collection est vide ou non définit");
             return
         }
-        const galleryModal = document.querySelector(".galerie-modal");
+        const galleryModal = document.querySelector(".galerie-modale");
 
         for (let i=0 ; i< works.length; i++) {
             const vignette = works[i];
@@ -57,11 +58,13 @@ const openModal = async function (e) {
 
             imageContainer.appendChild(imageVignette);
             imageContainer.appendChild(trashCanAncor);
+            
 
             galleryModal.appendChild(imageContainer);
         }
     }
 }
+
 
 const closeModal = function() {
     const modal = document.getElementById("myModal")
@@ -243,11 +246,11 @@ async function addToCollectionData(newWork) {
 }
 
 function addToCollectionModal(work) {
-    const galleryModal = document.querySelector(".galerie-modal")
+    const galleryModal = document.querySelector(".galerie-modale")
     const img = new Image();
     img.src = work.imageUrl;
     galleryModal.appendChild(img);
-    }
+}
 
 console.log(localStorage.getItem("token"))
 
@@ -282,6 +285,7 @@ document.addEventListener("keydown", function(event) {
     }
 })
 
+
 const overlay = document.getElementById("overlay");
 overlay.addEventListener("click", closeModal);
 
@@ -299,5 +303,3 @@ fileAdd.addEventListener("click", function(event) {
     addWork(event);
     closeModal();
 })
-
-// console.log(localStorage.getItem("token"))
