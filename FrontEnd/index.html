@@ -42,15 +42,26 @@
 		<h2>Mes Projets</h2>
 		<a href="#myModal" id="btn-modifier" style="display: none;"><i class="fa-regular fa-pen-to-square"></i> modifier</a>
 
+		<!-- html de la modal : galerie modale + formulaire d'ajout  -->
+
 		<asside id="myModal" class="modal" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="menu-ajout" style="display: none;">
+			<!-- partie 1 de la modale  -->
 			<div id="menu-ajout" class="modal-section" style="display: flex;">
 				<div id="close-button" class="close-button"><a href="#myModal" ><i class="fa-solid fa-xmark"></i></a></div>
-				<p>Galerie photo</p>
+				<p id="p-modal1">Galerie photo</p>
 				<div class="galery-frame"><div class="galerie-modale"></div></div>
+				<div id="border-line"></div>
 				<button id="btn-ajout">Ajouter une photo</button>
 			</div>
+
+			<!-- Partie 2 de la modale -->
+
+
 			<div id="ajout-photo" class="modal-section" style="display: none;">
+				<div id="button-container">
+					<div id="back-button"><a href="#"><i class="fa-solid fa-arrow-left"></i></a></div>
 				<div id="close-button2" class="close-button"><a href="#myModal" ><i class="fa-solid fa-xmark"></i></a></div>
+			</div>
 				<p id="modal-title2">Ajout Photo<p>
 				<form action="/upload" method="post" enctype="multipart/form-data">
 					<div id="ajout-frame">
