@@ -28,43 +28,43 @@ const openModal = async function (e) {
         genererCollectionModal(works);
         }
     
-    function genererCollectionModal(works) {
-        if (!works || works.length === 0) {
-            console.error("La collection est vide ou non définit");
-            return
-        }
-        const galleryModal = document.querySelector(".galerie-modale");
-
-        for (let i=0 ; i< works.length; i++) {
-            const vignette = works[i];
-            const imageContainer = document.createElement("div");
-            const imageVignette = document.createElement("img");
-
-            // peut être besoin de supprimer la partie trash-can et garder juste {vignette.id}
-            // pour l'appel à l'API delete
-            const trashCanId = `trash-can-${vignette.id}`;
-
-            const trashCanAncor = document.createElement("a");
-            trashCanAncor.href ="#";
-            trashCanAncor.id = trashCanId;
-            
-            const trashCanIcon = document.createElement("i");
-            trashCanIcon.classList.add("fas", "fa-trash-can");
-
-            trashCanAncor.appendChild(trashCanIcon);            
-
-
-            imageVignette.src = vignette.imageUrl;
-
-            imageContainer.appendChild(imageVignette);
-            imageContainer.appendChild(trashCanAncor);
-            
-
-            galleryModal.appendChild(imageContainer);
-        }
-    }
 }
 
+function genererCollectionModal(works) {
+    if (!works || works.length === 0) {
+        console.error("La collection est vide ou non définit");
+        return
+    }
+    const galleryModal = document.querySelector(".galerie-modale");
+
+    for (let i=0 ; i< works.length; i++) {
+        const vignette = works[i];
+        const imageContainer = document.createElement("div");
+        const imageVignette = document.createElement("img");
+
+        // peut être besoin de supprimer la partie trash-can et garder juste {vignette.id}
+        // pour l'appel à l'API delete
+        const trashCanId = `${vignette.id}`;
+
+        const trashCanAncor = document.createElement("a");
+        trashCanAncor.href ="#";
+        trashCanAncor.id = trashCanId;
+        
+        const trashCanIcon = document.createElement("i");
+        trashCanIcon.classList.add("fas", "fa-trash-can");
+
+        trashCanAncor.appendChild(trashCanIcon);            
+
+
+        imageVignette.src = vignette.imageUrl;
+
+        imageContainer.appendChild(imageVignette);
+        imageContainer.appendChild(trashCanAncor);
+        
+
+        galleryModal.appendChild(imageContainer);
+    }
+}
 
 const closeModal = function() {
     const modal = document.getElementById("myModal")
@@ -78,12 +78,19 @@ const closeModal = function() {
     document.body.classList.remove("modal-open");
 
 }
-
+// fonction pour passer de page 1 modal vers page 2 modal
 const slideModal = function() {
     const ajoutPhoto = document.getElementById("ajout-photo");
     const menuAjout = document.getElementById("menu-ajout");
     menuAjout.style.display = "none";
     ajoutPhoto.style.display = "flex";
+}
+// fonction pour passer de page 2 modale vers page 1 modale
+const slideModalBack = function() {
+    const ajoutPhoto = document.getElementById("ajout-photo");
+    const menuAjout = document.getElementById("menu-ajout");
+    menuAjout.style.display = "flex";
+    ajoutPhoto.style.display = "none";
     
 }
 
@@ -204,7 +211,6 @@ async function addWork(event) {
 
 
         await addToCollection(fileInput, title, categoryId);
-        addToCollectionModal(work);
     } else {
         console.error("Selected category not found:", categoryInput.value);
     }
@@ -246,13 +252,74 @@ async function addToCollectionData(newWork) {
 }
 
 function addToCollectionModal(work) {
-    const galleryModal = document.querySelector(".galerie-modale")
-    const img = new Image();
-    img.src = work.imageUrl;
-    galleryModal.appendChild(img);
+    const galleryModal = document.querySelector(".galerie-modale");
+    const imageContainer = document.createElement("div");
+    const imageVignette = document.createElement("img");
+    const trashCanAncor = document.createElement("a");
+    const trashCanIcon = document.createElement("i");
+
+    imageVignette.src = work.imageUrl;
+    trashCanAncor.href = "#";
+    trashCanIcon.classList.add("fas", "fa-trash-can");
+    trashCanAncor.appendChild(trashCanIcon);
+
+    imageContainer.appendChild(imageVignette);
+    imageContainer.appendChild(trashCanAncor);
+
+    galleryModal.appendChild(imageContainer);
 }
 
+// fonction pour la supression de projet
+
+async function deleteProject(projectId) {
+    try {
+        const token = localStorage.getItem("token");
+        const reponse = await fetch(`http://localhost:5678/api/works/${projectId}`,{
+            method : "DELETE",
+            headers: {
+                "Content-Type" : "application/json",
+                'Authorization' : `Bearer ${token}`
+            }
+        });
+
+        if (!reponse.ok) {
+            throw new Error("La supression du projet a échoué")
+        }
+
+        works = works.filter(work => work.id !== parseInt(projectId));
+        
+        updateGalleryAndModal();
+    } catch (error) {
+        console.error("Erreur dans la supression du projet:", error);
+    }
+}
+
+// fonction pour la maj des deux galeries après la supression d'un projet.
+
+function updateGalleryAndModal() {
+    const galleryModal = document.querySelector(".galerie-modale");
+    const gallery = document.querySelector(".gallery")
+    galleryModal.innerHTML= "";
+    gallery.innerHTML = "";
+
+    getCollection(works);
+    genererCollectionModal(works);
+}
+
+
 console.log(localStorage.getItem("token"))
+
+// Gestion de la suppression de projet
+
+document.addEventListener("click", async function(event) {
+    if (event.target.matches(".fa-trash-can")) {
+        const projectId = event.target.parentElement.id;
+        await deleteProject(projectId);
+        console.log(projectId);
+    }
+});
+
+
 
 // Obtention des catégories et attribution à l'input select
 const selectElement = document.getElementById("choix-cat");
@@ -293,6 +360,10 @@ overlay.addEventListener("click", closeModal);
 const btnAjout = document.getElementById("btn-ajout");
 btnAjout.addEventListener("click", slideModal);
 
+// Retour vers la page 1 modale depuis la page 2 modale
+const backButton = document.getElementById("back-button");
+backButton.addEventListener("click", slideModalBack);
+
 // Affichage de l'aperçu du fichier a upload dans la modale 
 const fileInput = document.getElementById("file");
 fileInput.addEventListener("change", handleFileUpload);
@@ -301,5 +372,5 @@ const fileAdd = document.getElementById("valider");
 fileAdd.addEventListener("click", function(event) {
     event.preventDefault();
     addWork(event);
-    closeModal();
+    slideModalBack();
 })
