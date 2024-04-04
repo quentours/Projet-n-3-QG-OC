@@ -144,12 +144,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
 document.addEventListener("DOMContentLoaded", function() {
     const btnModifier = document.getElementById("btn-modifier");
+    const modeEditionContainer = document.getElementById("edition");
 
     const token = localStorage.getItem("token");
 
     if (token) {
+        modeEditionContainer.style.display = "flex"
         btnModifier.style.display = "block";
     } else {
+        modeEditionContainer.style.display = "none"
         btnModifier.style.display = "none";
     }
 })

@@ -307,7 +307,6 @@ function updateGalleryAndModal() {
 }
 
 
-console.log(localStorage.getItem("token"))
 
 // Gestion de la suppression de projet
 
@@ -338,6 +337,10 @@ categories.forEach(category => {
 // Affichage de la modale
 const btnModifier = document.getElementById("btn-modifier");
 btnModifier.addEventListener("click", openModal);
+
+const modeEditionButton = document.getElementById("btn-edition");
+modeEditionButton.addEventListener("click", openModal);
+
 
 // Femeture de la modale 
 const btnFermer = document.getElementById("close-button");
