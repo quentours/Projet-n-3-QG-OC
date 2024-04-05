@@ -7,7 +7,7 @@ genererCollection(works);
 }
 
 
-
+// Fonction pour créer la collection à partir des données récupérées par la requête à l'API
 
 function genererCollection(works) {
     if (!works || works.length ===0) {
@@ -48,7 +48,7 @@ function genererCollection(works) {
         
 
     } else {
-        console.error("Missing category or id in fiche:", fiche);
+        console.error("categorie ou id manquante(s) dans fiche:", fiche);
         }
     }
 
@@ -92,12 +92,27 @@ function createFilterButtons(categories) {
     });
 }
 
-// définition de l'évennement au clic sur un des boutons
+// définition de l'évennement au clic sur un des boutons (filtration et changement de couleur du bouton)
 
 function handleFilterClick(event) {
     const categoryId = parseInt(event.target.dataset.categoryId);
+
+    const boutonsTri = document.querySelectorAll("#portfolio .bouton-de-tri button");
+    boutonsTri.forEach(btn => {
+        btn.classList.remove("selected");
+    });
+
+    event.target.classList.add("selected");
+
     filterElements(categoryId);
 }
+
+btnTous = document.querySelector(".btn-tous");
+btnTous.addEventListener("click" , function(event) {
+    handleFilterClick(event);
+    getCollection();
+} );
+
 
 // Affichage des éléments en fonction de leur catégorie
 
@@ -105,14 +120,12 @@ function filterElements(categoryId) {
     const elements = document.querySelectorAll(".gallery .element")
        elements.forEach(element => {
         const elementCategoryId = parseInt(element.dataset.categoryId);
-        console.log("Element Category ID:" , elementCategoryId);
         if (categoryId === "all" || categoryId === elementCategoryId) {
             element.style.display = "block";
         } else {
             element.style.display ="none";
         }
     });
-    console.log(categoryId)
 }
 
 fetchCategories();
@@ -123,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const loginLink = document.getElementById("login-link");
     const logoutLink = document.getElementById("logout-link");
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (token) {
         loginLink.style.display = "none";
         logoutLink.style.display = "block";
@@ -135,21 +148,27 @@ document.addEventListener("DOMContentLoaded", function() {
     // Supression du token dans le localStorage au clic sur logout
     const logoutButton = document.getElementById("logout-link");
     logoutButton.addEventListener("click", function() {
-        localStorage.removeItem("token");
-        window.location.href = "file:///C:/xampp/htdocs/Code%20entrainement/Formation%20Dev%20Web%20OpenClassrooms/Partie%203/Projet%203/Projet-n-3-QG-OC/FrontEnd/index.html"
+        sessionStorage.removeItem("token");
+        window.location.href = "./index.html"
     }) 
 })
 
-// affichage du boutton modifier si l'utilisateur est connecté 
+// affichage du boutton modifier et du bandeau "mode édition" si l'utilisateur est connecté 
 
 document.addEventListener("DOMContentLoaded", function() {
     const btnModifier = document.getElementById("btn-modifier");
+    const modeEditionContainer = document.getElementById("edition");
+    const editionFrame = document.getElementById("edition-frame")
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (token) {
+        editionFrame.style.display = "flex"
+        modeEditionContainer.style.display = "flex"
         btnModifier.style.display = "block";
     } else {
+        editionFrame.style.display = "none"
+        modeEditionContainer.style.display = "none"
         btnModifier.style.display = "none";
     }
 })

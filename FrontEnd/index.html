@@ -12,7 +12,15 @@
 	<script src="https://kit.fontawesome.com/5e162f1db4.js" crossorigin="anonymous"></script>
 </head>
 <body>
+	<!-- code HTML de l'overlay à l'ouverture de la modale -->
 	<div id="overlay"></div>
+	<!-- Code HTML du bandeau qui s'affiche une fois loged in -->
+	<div id="edition-frame" style="display: none;">
+		<div id="edition" style="display: none;">
+			<a href="#myModal" id="btn-edition"><i class="fa-regular fa-pen-to-square"></i> Mode édition</a>
+		</div>
+	</div>
+
 <header>
 	<h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
 	<nav>
@@ -83,10 +91,11 @@
 			</div>
 		</asside>
 		</div>
+		<!-- Partie dédiée aux boutons de tri -->
 		<div class="bouton-de-tri">
-			<button class="btn-tous">Tous</button>
-		
+			<button class="btn-tous selected">Tous</button>
 		</div>
+		<!-- espace choisi pour la création de la galerie via les script -->
 		<div id="gallery-container">
 		<div class="gallery" id="work-container">
 		</div>
@@ -114,9 +123,9 @@
 		</ul>
 	</nav>
 </footer>
-
+<!-- Ratachement des pages de script à la page HTML -->
 <script src="./js/index.js"></script>
 <script src="./js/modal.js"></script>
-<!-- <script src="index.js"></script> -->
+
 </body>
 </html>
