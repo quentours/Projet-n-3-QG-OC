@@ -3,6 +3,8 @@ let collectionGenerated = false;
 let works = [];
 // Définition des fonctions
 
+// Fonction d'ouverture de la modale
+
 const openModal = async function (e) {
     e.preventDefault()
     const target = document.querySelector(e.target.getAttribute("href"));
@@ -30,6 +32,8 @@ const openModal = async function (e) {
     
 }
 
+// Fonction pour générer la collection de miniature dans la page 1 modale
+
 function genererCollectionModal(works) {
     if (!works || works.length === 0) {
         console.error("La collection est vide ou non définit");
@@ -42,8 +46,6 @@ function genererCollectionModal(works) {
         const imageContainer = document.createElement("div");
         const imageVignette = document.createElement("img");
 
-        // peut être besoin de supprimer la partie trash-can et garder juste {vignette.id}
-        // pour l'appel à l'API delete
         const trashCanId = `${vignette.id}`;
 
         const trashCanAncor = document.createElement("a");
@@ -66,6 +68,8 @@ function genererCollectionModal(works) {
     }
 }
 
+// Fonction de fermeture de la modale
+
 const closeModal = function() {
     const modal = document.getElementById("myModal")
     const ajoutPhoto = document.getElementById("ajout-photo")
@@ -78,27 +82,34 @@ const closeModal = function() {
     document.body.classList.remove("modal-open");
 
 }
-// fonction pour passer de page 1 modal vers page 2 modal
+
+// fonction pour passer de page 1 modale vers page 2 modale
+
 const slideModal = function() {
     const ajoutPhoto = document.getElementById("ajout-photo");
     const menuAjout = document.getElementById("menu-ajout");
     menuAjout.style.display = "none";
     ajoutPhoto.style.display = "flex";
 }
+
 // fonction pour passer de page 2 modale vers page 1 modale
+
 const slideModalBack = function() {
     const ajoutPhoto = document.getElementById("ajout-photo");
     const menuAjout = document.getElementById("menu-ajout");
     menuAjout.style.display = "flex";
     ajoutPhoto.style.display = "none";
-    
-}
+    }
 
+// Récupération des catégories via l'API
+    
  async function getCategories() {
     const reponse = await fetch("http://localhost:5678/api/categories")
         const categories = await reponse.json();
         return categories
 }
+
+// Obtention via l'API et création de la collection dans la div gallery
 
 async function getCollection() {
     const reponse = await fetch("http://localhost:5678/api/works");
@@ -106,6 +117,8 @@ async function getCollection() {
     
     genererCollection(works);
     }
+
+// Création de la collection (fonction appelée dans getCollecetion)
 
 async function genererCollection(worksData) {
     works = worksData;
@@ -155,13 +168,15 @@ async function genererCollection(worksData) {
     
 }
 
+// Gestion de l'affichage du formulaire lors de la selection d'une image sur le pc
+
 function handleFileUpload(event) {
+    const renderPicture = document.getElementById("render-picture");
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
         img.src = e.target.result;
-        const renderPicture = document.getElementById("render-picture");
         const inputFile = document.getElementById("file");
         const p1 = document.getElementById("p-frame1");
         const p2 = document.getElementById("p-frame2")
@@ -172,11 +187,24 @@ function handleFileUpload(event) {
         logo.style.display = "none";
         renderPicture.classList.add("render");
         renderPicture.appendChild(img);
+        
+
+        const title = document.getElementById("title").value
+        const category = document.getElementById("choix-cat").value
+        const imageUrl = renderPicture.querySelector("img").src
         inputValider = document.getElementById("valider");
-        inputValider.classList.add("ready-to-upload");
+            
+        if(title && category && imageUrl) {
+            inputValider.classList.add("ready-to-upload")
+        } else {
+            inputValider.classList.remove("ready-to-upload")
+        }
     };
     reader.readAsDataURL(file);
 }
+
+// Gestion de l'ajout d'un nouveau projet (mise en forme pour l'ajout à la base de données et 
+// appel de la fonction addToCollection)
 
 async function addWork(event) {
     event.preventDefault();
@@ -188,12 +216,25 @@ async function addWork(event) {
     const imageUrl = ajoutFrame.querySelector("img").src;
     const userID = 1;
 
-    const categories = await getCategories();
-
-    const selectedCategory = categories.find(category => category.name === categoryInput.value);
-    // C'est Ici qu'il faut coriger le tir !!!
     
-    if(selectedCategory) {
+        if(!title || !categoryInput.value || !imageUrl) {
+            const errorMessage = "Merci de renseigner un titre, une catégorie et un fichier"
+            console.error(errorMessage);
+            alert(errorMessage);
+            return;
+        }
+        
+        
+    try {
+
+    const categories = await getCategories();
+    const selectedCategory = categories.find(category => category.name === categoryInput.value);
+    
+    
+    if(!selectedCategory) {
+        throw new Error ("Merci de sélectionner une catégorie")
+    }
+
         const categoryId = parseInt(selectedCategory.id);
         const categoryName = selectedCategory.name
         const id = works.length > 0 ? works.length +1 : 1;
@@ -209,16 +250,49 @@ async function addWork(event) {
             "userID" : userID 
         };
 
-
         await addToCollection(fileInput, title, categoryId);
-    } else {
-        console.error("Selected category not found:", categoryInput.value);
+
+        resetForm();
+
+    } catch (error) {
+        console.error("Erreur dans l'ajout du projet, veuillez vérifier vos informations du formulaire", error.message);
     }
-   
 }
 
+// fonction pour le reset du formulaire une fois un projet ajouté 
+
+function resetForm() {
+    const renderPicture = document.getElementById("render-picture");
+    const inputFile = document.getElementById("file");
+    const p1 = document.getElementById("p-frame1");
+    const p2 = document.getElementById("p-frame2");
+    const logo = document.getElementById("logo-ajout");
+
+    renderPicture.innerHTML = "";
+
+    inputFile.style.display = "flex";
+    inputFile.style.zIndex = "3";
+    p1.style.display = "block";
+    p2.style.display = "flex";
+    logo.style.display = "block";
+
+    document.getElementById("title").value = "";
+    document.getElementById("choix-cat").value = "";
+    document.getElementById("file").value = "";
+
+    renderPicture.classList.remove("render")
+    
+
+    const validerButton = document.getElementById("valider");
+    validerButton.classList.remove("ready-to-upload");
+
+}
+
+
+// Ajout du nouveau projet à la base de données et mise à jour des collections
+
 async function addToCollection(fileInput, title, categoryId) {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const formData = new FormData();
     formData.append("image", fileInput.files[0]);
     formData.append("title", title);
@@ -240,7 +314,6 @@ async function addToCollection(fileInput, title, categoryId) {
         const newWork = await reponse.json();
         await addToCollectionData(newWork);
         genererCollection(works);
-        // console.log(categoryId);
         addToCollectionModal(newWork);
     } catch (error) {
         console.error("Erreur dans l'ajout du projet", error.message);
@@ -250,6 +323,8 @@ async function addToCollection(fileInput, title, categoryId) {
 async function addToCollectionData(newWork) {
     works.push(newWork);
 }
+
+// Mise à jour de la collection modale
 
 function addToCollectionModal(work) {
     const galleryModal = document.querySelector(".galerie-modale");
@@ -273,7 +348,7 @@ function addToCollectionModal(work) {
 
 async function deleteProject(projectId) {
     try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const reponse = await fetch(`http://localhost:5678/api/works/${projectId}`,{
             method : "DELETE",
             headers: {
@@ -306,6 +381,25 @@ function updateGalleryAndModal() {
     genererCollectionModal(works);
 }
 
+//  fonction pour vérifier les inputs dans le formulaire
+
+function checkInputs() {
+    const titleInputfield = document.getElementById("title");
+    const categoryInputfield = document.getElementById("choix-cat");
+
+    const title = titleInputfield.value;
+    const category = categoryInputfield.value;
+    const imageUrl = document.getElementById("render-picture").querySelector("img").src;
+    const validerButton = document.getElementById("valider");
+
+    if(title && category && imageUrl) {
+        validerButton.classList.add("ready-to-upload");
+    } else {
+        validerButton.classList.remove("ready-to-upload")
+    }
+    
+}
+
 
 
 // Gestion de la suppression de projet
@@ -314,7 +408,6 @@ document.addEventListener("click", async function(event) {
     if (event.target.matches(".fa-trash-can")) {
         const projectId = event.target.parentElement.id;
         await deleteProject(projectId);
-        console.log(projectId);
     }
 });
 
@@ -371,9 +464,32 @@ backButton.addEventListener("click", slideModalBack);
 const fileInput = document.getElementById("file");
 fileInput.addEventListener("change", handleFileUpload);
 
+
+// Trouver un moyen de conditioner SlideModalBack au succès de addWork
 const fileAdd = document.getElementById("valider");
-fileAdd.addEventListener("click", function(event) {
+fileAdd.addEventListener("click", async function(event) {
     event.preventDefault();
-    addWork(event);
-    slideModalBack();
+
+    if(!this.classList.contains("ready-to-upload")) {
+        console.log("Merci de remplir les champs du formulaires");
+        alert("Merci de renseigner un titre, une categorie et une image")
+        return;
+    }
+
+    try {
+        await addWork(event);
+        slideModalBack();
+    } catch (error) {
+        console.error("Erreur dans l'ajout du nouveau projet", error.message);
+        alert(error.message);
+    }
 })
+
+// Passage de la classe ready to upload au bouton valider lors du remplissage du dernier input du formulaire
+
+const titleInputfield = document.getElementById("title");
+const categoryInputfield = document.getElementById("choix-cat");
+const fileInputfield = document.getElementById("file")
+
+titleInputfield.addEventListener("input", checkInputs);
+categoryInputfield.addEventListener("input", checkInputs);
