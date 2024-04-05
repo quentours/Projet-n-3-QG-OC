@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
             const reponse = await fetch("http://localhost:5678/api/users/login", {
                 method: "POST",
-                headers: { "Content-Type" : "application/json"},
+                headers: { 
+                    "Content-Type" : "application/json"},
                 body : JSON.stringify({
                     email: email,
                     password : password
@@ -23,13 +24,13 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await reponse.json();
             const token = data.token;
 
-            localStorage.setItem("token", token)
+            sessionStorage.setItem("token", token)
 
             window.location.href = "./index.html";
         } catch (error) {
             console.error("Error:", error.message);
 
-            alert("Echec de la connexion. Merci de vérifier votre email et mot de passe.")
+            alert("Combinaison E-mail mot de passe incorecte.")
         }
     });
 });
