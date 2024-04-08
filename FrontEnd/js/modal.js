@@ -32,7 +32,7 @@ const openModal = async function (e) {
     
 }
 
-// Fonction pour générer la collection de miniature dans la page 1 modale
+// Fonction pour générer la collection de miniatures dans la page 1 modale
 
 function genererCollectionModal(works) {
     if (!works || works.length === 0) {
@@ -65,6 +65,7 @@ function genererCollectionModal(works) {
         
 
         galleryModal.appendChild(imageContainer);
+
     }
 }
 
@@ -204,7 +205,7 @@ function handleFileUpload(event) {
 }
 
 // Gestion de l'ajout d'un nouveau projet (mise en forme pour l'ajout à la base de données et 
-// appel de la fonction addToCollection)
+// appel des fonction addToCollection et resetForm())
 
 async function addWork(event) {
     event.preventDefault();
@@ -224,22 +225,27 @@ async function addWork(event) {
             return;
         }
         
-        
-    try {
 
-    const categories = await getCategories();
-    const selectedCategory = categories.find(category => category.name === categoryInput.value);
-    
-    
-    if(!selectedCategory) {
-        throw new Error ("Merci de sélectionner une catégorie")
-    }
+        try {
+            const allWorksRequest = await fetch("http://localhost:5678/api/works");
+            const allWorks = await allWorksRequest.json();
+
+            const maxId = allWorks.reduce((max, work) => work.id > max ? work.id : max, 0);
+            const newWorkId = maxId +1;
+            
+            const categories = await getCategories();
+            const selectedCategory = categories.find(category => category.name === categoryInput.value);
+
+            if(!selectedCategory) {
+                throw new Error ("Merci de sélectionner une catégorie")
+        }
 
         const categoryId = parseInt(selectedCategory.id);
         const categoryName = selectedCategory.name
-        const id = works.length > 0 ? works.length +1 : 1;
-        const work = {
-            "id" : id,
+       
+
+        let work = {
+            "id" : newWorkId,
             "title" : title,
             "imageUrl" : imageUrl,
             "categoryId" : categoryId,
@@ -324,18 +330,26 @@ async function addToCollectionData(newWork) {
     works.push(newWork);
 }
 
-// Mise à jour de la collection modale
+// Mise à jour de la collection modale avec attribution de l'ID correspondante à celle de la base de données
+// pour la supression éventuelle
 
-function addToCollectionModal(work) {
+async function addToCollectionModal(work) {
     const galleryModal = document.querySelector(".galerie-modale");
     const imageContainer = document.createElement("div");
     const imageVignette = document.createElement("img");
     const trashCanAncor = document.createElement("a");
     const trashCanIcon = document.createElement("i");
 
+    const allWorksRequest = await fetch("http://localhost:5678/api/works");
+            const allWorks = await allWorksRequest.json();
+
+            const maxId = allWorks.reduce((max, work) => work.id > max ? work.id : max, 0);
+            const vignetteId = maxId ;
+
     imageVignette.src = work.imageUrl;
     trashCanAncor.href = "#";
     trashCanIcon.classList.add("fas", "fa-trash-can");
+    trashCanAncor.setAttribute(`id`, vignetteId)
     trashCanAncor.appendChild(trashCanIcon);
 
     imageContainer.appendChild(imageVignette);
@@ -400,6 +414,13 @@ function checkInputs() {
     
 }
 
+// Fonction pour reset l'état des boutons à la fermeture de la modale après avoir ajouter un projet
+function resetSelectedButton() {
+const boutonsTri = document.querySelectorAll(".bouton-de-tri button");
+boutonsTri.forEach(button => button.classList.remove("selected"))
+let boutonTous = document.querySelector(".btn-tous");
+boutonTous.classList.add("selected");
+}
 
 
 // Gestion de la suppression de projet
@@ -415,7 +436,6 @@ document.addEventListener("click", async function(event) {
 
 // Obtention des catégories et attribution à l'input select
 const selectElement = document.getElementById("choix-cat");
-// selectElement.innerHTML ="";
 getCategories().then(categories => {
 categories.forEach(category => {
     const option = document.createElement("option");
@@ -465,27 +485,29 @@ const fileInput = document.getElementById("file");
 fileInput.addEventListener("change", handleFileUpload);
 
 
-// Trouver un moyen de conditioner SlideModalBack au succès de addWork
+// Ajout d'un nouveau projet au clic sur le bouton valider et retour sur la page 1 de la modale
+// (Ajout conditionné par l'attribution de la classe ready-to-upload au bouton valider)
 const fileAdd = document.getElementById("valider");
 fileAdd.addEventListener("click", async function(event) {
     event.preventDefault();
 
     if(!this.classList.contains("ready-to-upload")) {
         console.log("Merci de remplir les champs du formulaires");
-        alert("Merci de renseigner un titre, une categorie et une image")
+        alert("Merci de renseigner un titre, une categorie et une image");
         return;
     }
 
     try {
         await addWork(event);
         slideModalBack();
+        resetSelectedButton();
     } catch (error) {
         console.error("Erreur dans l'ajout du nouveau projet", error.message);
         alert(error.message);
     }
 })
 
-// Passage de la classe ready to upload au bouton valider lors du remplissage du dernier input du formulaire
+// Passage de la classe CSS ready-to-upload au bouton valider lors du remplissage du dernier input du formulaire
 
 const titleInputfield = document.getElementById("title");
 const categoryInputfield = document.getElementById("choix-cat");
